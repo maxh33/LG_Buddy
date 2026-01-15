@@ -1,0 +1,15 @@
+#!/bin/bash
+
+tv_ip="192.168.0.155"
+
+# For screen idle events, we skip the power state check and just send power_off.
+# The previous approach failed because:
+# 1. get_power_state can timeout even when TV is on
+# 2. A timeout was incorrectly interpreted as "TV is off"
+#
+# power_off puts the TV in standby mode. It's safe to call even if the TV
+# is already in standby (it just does nothing).
+
+echo "Turning TV off (screen idle)..."
+/usr/bin/LG_Buddy_PIP/bin/bscpylgtvcommand "$tv_ip" power_off 2>&1 || \
+    echo "Could not turn TV off (may already be off or unreachable)"

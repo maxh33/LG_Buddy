@@ -1,0 +1,6 @@
+# User-specific data
+.aiopylgtv.sqlite
+dbus_log.txt
+
+# Python virtual environment
+.venv/

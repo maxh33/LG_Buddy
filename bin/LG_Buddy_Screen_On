@@ -1,0 +1,17 @@
+#!/bin/bash
+
+tv_ip="192.168.0.155"
+tv_mac="84:90:0A:64:10:68"
+input="HDMI_4"
+
+echo "Turning TV on (screen wake)..."
+
+# Send Wake-on-LAN to wake the TV from standby
+wakeonlan "$tv_mac"
+
+# Wait for TV to fully wake up and accept WebSocket connections
+sleep 8
+
+# Set the input - this also turns on the TV if it's in standby
+/usr/bin/LG_Buddy_PIP/bin/bscpylgtvcommand "$tv_ip" set_input "$input" 2>&1 || \
+    echo "set_input failed (TV may need more time to wake)"

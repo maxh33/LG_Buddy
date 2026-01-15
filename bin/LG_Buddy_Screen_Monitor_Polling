@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# This script polls loginctl to check for session idle status changes.
+
+# Get the current session ID
+SESSION_ID=$(loginctl session-status | head -n 1 | awk '{print $1}')
+if [ -z "$SESSION_ID" ]; then
+    echo "Could not determine session ID. Exiting."
+    exit 1
+fi
+
+echo "Monitoring session $SESSION_ID for idle changes..."
+
+# Initialize the last known state
+last_state=$(loginctl show-session "$SESSION_ID" --property=IdleHint --value)
+
+while true; do
+    # Get the current idle state
+    current_state=$(loginctl show-session "$SESSION_ID" --property=IdleHint --value)
+
+    if [ "$current_state" != "$last_state" ]; then
+        if [ "$current_state" = "yes" ]; then
+            echo "Session became idle. Turning TV off."
+            /usr/bin/LG_Buddy_Screen_Off
+        elif [ "$current_state" = "no" ]; then
+            echo "Session became active. Turning TV on."
+            /usr/bin/LG_Buddy_Screen_On
+        fi
+        # Update the last known state
+        last_state=$current_state
+    fi
+
+    # Wait for a few seconds before checking again
+    sleep 5
+done
