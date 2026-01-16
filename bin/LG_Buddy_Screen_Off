@@ -1,6 +1,6 @@
 #!/bin/bash
 
-tv_ip="192.168.0.155"
+tv_ip="192.168.X.X"
 
 # For screen idle events, we skip the power state check and just send power_off.
 # The previous approach failed because:
