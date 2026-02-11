@@ -7,16 +7,31 @@ read -p "Enter your TV's IP address: " tv_ip
 read -p "Enter your TV's MAC address: " tv_mac
 
 # Prompt for PC input
-read -p "Enter your PC's input (e.g., HDMI_1): " pc_input
+read -p "Enter your PC's input (e.g., HDMI_1, HDMI_4): " pc_input
 
 # Update configuration files
 echo "Updating configuration files..."
-sed -i "s/tv_ip=\"192.168.X.X\"/tv_ip=\"$tv_ip\"/" bin/LG_Buddy_Startup
-sed -i "s/tv_mac=\"XX:XX:XX:XX:XX:XX\"/tv_mac=\"$tv_mac\"/" bin/LG_Buddy_Startup
-sed -i "s/input=\"HDMI_1\"/input=\"$pc_input\"/" bin/LG_Buddy_Startup
 
-sed -i "s/tv_ip=\"192.168.X.X\"/tv_ip=\"$tv_ip\"/" bin/LG_Buddy_Shutdown
+# LG_Buddy_Startup
+sed -i "s/tv_ip=\"[^\"]*\"/tv_ip=\"$tv_ip\"/" bin/LG_Buddy_Startup
+sed -i "s/tv_mac=\"[^\"]*\"/tv_mac=\"$tv_mac\"/" bin/LG_Buddy_Startup
+sed -i "s/input=\"[^\"]*\"/input=\"$pc_input\"/" bin/LG_Buddy_Startup
 
-sed -i "s/tv_ip=\"192.168.X.X\"/tv_ip=\"$tv_ip\"/" bin/LG_Buddy_sleep
+# LG_Buddy_Shutdown
+sed -i "s/tv_ip=\"[^\"]*\"/tv_ip=\"$tv_ip\"/" bin/LG_Buddy_Shutdown
+sed -i "s/input=\"[^\"]*\"/input=\"$pc_input\"/" bin/LG_Buddy_Shutdown
+
+# LG_Buddy_sleep
+sed -i "s/tv_ip=\"[^\"]*\"/tv_ip=\"$tv_ip\"/" bin/LG_Buddy_sleep
+sed -i "s/input=\"[^\"]*\"/input=\"$pc_input\"/" bin/LG_Buddy_sleep
+
+# LG_Buddy_Screen_Off
+sed -i "s/tv_ip=\"[^\"]*\"/tv_ip=\"$tv_ip\"/" bin/LG_Buddy_Screen_Off
+sed -i "s/input=\"[^\"]*\"/input=\"$pc_input\"/" bin/LG_Buddy_Screen_Off
+
+# LG_Buddy_Screen_On
+sed -i "s/tv_ip=\"[^\"]*\"/tv_ip=\"$tv_ip\"/" bin/LG_Buddy_Screen_On
+sed -i "s/tv_mac=\"[^\"]*\"/tv_mac=\"$tv_mac\"/" bin/LG_Buddy_Screen_On
+sed -i "s/input=\"[^\"]*\"/input=\"$pc_input\"/" bin/LG_Buddy_Screen_On
+
 echo "Configuration updated successfully."
-
