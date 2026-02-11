@@ -49,6 +49,7 @@ All scripts are bash and share hardcoded TV configuration variables (tv_ip, tv_m
 
 ```bash
 # Test TV communication directly
+/usr/bin/LG_Buddy_PIP/bin/bscpylgtvcommand <tv_ip> get_input        # Check current input
 /usr/bin/LG_Buddy_PIP/bin/bscpylgtvcommand <tv_ip> get_power_state
 /usr/bin/LG_Buddy_PIP/bin/bscpylgtvcommand <tv_ip> power_off
 /usr/bin/LG_Buddy_PIP/bin/bscpylgtvcommand <tv_ip> set_input HDMI_4
@@ -62,6 +63,9 @@ wayland-info | grep -i idle
 # Run individual scripts manually
 /usr/bin/LG_Buddy_Screen_On
 /usr/bin/LG_Buddy_Screen_Off
+
+# Check state file (HDMI gating)
+ls -la /run/user/1000/lg_buddy/
 
 # Check service status
 systemctl status LG_Buddy.service
@@ -89,11 +93,30 @@ For power-on to work reliably:
 - **Quick Start+** recommended for faster wake times
 - Static IP or DHCP reservation recommended to prevent IP changes
 
+## HDMI Input Gating
+
+Scripts only act when the TV is on the configured HDMI input (e.g., HDMI_4). This prevents disrupting content on other inputs (console, streaming stick, etc.).
+
+### How it works
+
+- **Screen_Off / sleep / Shutdown** call `get_input` before acting. If the TV is on a different input, they skip.
+- **Screen_On / Startup** use a state file to know whether LG Buddy turned the TV off. If not, they skip.
+- **On `get_input` failure** (TV off/unreachable/timeout): scripts default to acting. The primary use case is HDMI_4, and `power_off` is idempotent.
+
+### State File Protocol
+
+Location: `/run/user/1000/lg_buddy/screen_off_by_us` (tmpfs, auto-cleaned on reboot)
+
+- **Writers:** Screen_Off, sleep (create file when they turn TV off)
+- **Readers:** Screen_On, Startup (check file, remove after acting)
+- **Format conversion:** `HDMI_4` config → `com.webos.app.hdmi4` API format
+
 ## bscpylgtv Commands
 
 Key commands that work on newer WebOS TVs:
 - `power_off` - Put TV in standby (idempotent, safe to call when already off)
 - `set_input HDMI_X` - Switch input and wake TV from standby
+- `get_input` - Returns current input as app ID (e.g., `com.webos.app.hdmi4`)
 - `get_power_state` - Returns dict with state ('Active' or 'Active Standby')
 - `button POWER` - Toggle power (avoid for automation - use power_off instead)
 
